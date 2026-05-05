@@ -4,5 +4,6 @@ from AppSchool import views
 
 urlpatterns = [
     path('students/', views.LoginView.as_view()),
-    path('create-teacher/', views.CreateTeacherAdminView.as_view()),
+    path('create-Teacher/', views.CreateTeacherAdminView.as_view()),
+    path('Create-Course/', views.CreateCourseAdminView.as_view()),
     ]
