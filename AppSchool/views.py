@@ -61,3 +61,25 @@ class CreateTeacherAdminView(APIView):
             }, status=status.HTTP_201_CREATED)
         
         return Response({"error": "Failed to create teacher"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class CreateCourseAdminView(APIView):
+    def post(self, request):
+        name = request.data.get("name")
+        parallel = request.data.get("parallel")
+
+        for field in [name, parallel]:
+            if not field:
+                return Response({"error": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if models.Course.objects.filter(name=name, parallel=parallel).exists():
+            return Response({"error": "The course already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        course = models.Course.objects.create(name=name, parallel=parallel)
+
+        if course:
+            return Response({
+                "message": "Course created successfully",
+                "course_id": course.id
+            }, status=status.HTTP_201_CREATED)
+        
+        return Response({"error": "Failed to create course"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
