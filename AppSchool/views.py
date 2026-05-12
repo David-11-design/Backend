@@ -69,10 +69,10 @@ class CreateCourseAdminView(APIView):
 
         for field in [name, parallel]:
             if not field:
-                return Response({"error": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error_empty": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
 
         if models.Course.objects.filter(name=name, parallel=parallel).exists():
-            return Response({"error": "The course already exists"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error_exists": "The course already exists"}, status=status.HTTP_400_BAD_REQUEST)
         
         course = models.Course.objects.create(name=name, parallel=parallel)
 
@@ -83,3 +83,32 @@ class CreateCourseAdminView(APIView):
             }, status=status.HTTP_201_CREATED)
         
         return Response({"error": "Failed to create course"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+class CreateSubjectAdminView(APIView):
+    def post(self, request):
+        subject = request.data.get("name")
+
+        if not subject:
+            return Response({"error": "Subject name is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if models.Subject.objects.filter(name=subject).exists():
+            return Response({"error": "The subject already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        new_subject = models.Subject.objects.create(name=subject)
+
+        if new_subject:
+            return Response({
+                "message": "Subject created successfully",
+                "subject_id": new_subject.id
+            }, status=status.HTTP_201_CREATED)
+
+        return Response({"error": "Failed to create subject"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class GetTeacherAdminView(APIView):
+    def get(self, request):
+        teachers = models.Teacher.objects.all()
+        if teachers:
+            teacher_list = [ {"id": teacher.id, "name": teacher.name, "fullname": teacher.fullname, "username": teacher.username} for teacher in teachers]
+            return Response({"teachers": teacher_list}, status=status.HTTP_200_OK)
+
+        return Response({"error": "No teachers found"}, status=status.HTTP_404_NOT_FOUND)
